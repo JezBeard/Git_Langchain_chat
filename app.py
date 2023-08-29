@@ -22,7 +22,7 @@ from langchain.callbacks import get_openai_callback
 import os
 import openai
 
-openai.api_key = "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"
+openai.api_key = st.secrets["openai_api_key"]
  
 # Sidebar contents
 with st.sidebar:
