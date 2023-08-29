@@ -6,3 +6,4 @@ faiss-cpu
 openai
 streamlit-extras
 altair<5
+tiktoken
