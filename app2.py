@@ -23,7 +23,7 @@ import os
  
 # Sidebar contents
 with st.sidebar:
-    st.title('💬 PDF Chat App')
+    st.title('👾🤖💬 Jezza''s PDF Chat App')
     st.markdown('''
     ## About
     This app is an LLM-powered chatbot built using:
@@ -38,7 +38,7 @@ with st.sidebar:
 load_dotenv()
  
 def main():
-    st.header("Jezza's Chat with a PDF 💬👾🤖")
+    st.header("Chat with a PDF 💬")
  
  
     # upload a PDF file
@@ -78,22 +78,17 @@ def main():
         # VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
  
         # Accept user questions/query
-        # Accept user questions/query
         query = st.text_input("Ask questions about your PDF file:")
-        suggestions = ["What is the main topic of the document?", "Can you summarize the document in 200 words?", "What are the key points mentioned in the document?", "What is the conclusion of the document?", "Can you provide an overview of the document's content?"]
-        suggestion = st.selectbox("Or select a suggestion:", suggestions)
-        if suggestion:
-            query = suggestion
-# st.write(query)
- 
+        # st.write(query)
+        
         if query:
             docs = VectorStore.similarity_search(query=query, k=3)
-            llm = ChatOpenAI(model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+            llm = ChatOpenAI(max_tokens=2000, temperature=0.5)
             chain = load_qa_chain(llm=llm, chain_type="stuff")
             with get_openai_callback() as cb:
                 response = chain.run(input_documents=docs, question=query)
                 print(cb)
             st.write(response)
- 
+
 if __name__ == '__main__':
     main()
