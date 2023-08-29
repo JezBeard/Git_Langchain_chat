@@ -20,6 +20,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.callbacks import get_openai_callback
 import os
+import openai
  
 # Sidebar contents
 with st.sidebar:
@@ -36,58 +37,54 @@ with st.sidebar:
     st.write('Made with ❤️ by Jez')
  
 load_dotenv()
+
+openai.api_key = os.environ["OPENAI_API_KEY"]
  
+def get_response(message):
+    response = openai.Completion.create(
+        engine = 'gpt-3.5-turbo',
+        temperature = 1,
+        prompt = message
+    )
+    return response.choices[0].text
+
 def main():
     st.header("Chat with a PDF 💬")
- 
- 
+
     # upload a PDF file
     pdf = st.file_uploader("Upload your PDF (just one for now)", type='pdf')
- 
-    # st.write(pdf)
+
     if pdf is not None:
         pdf_reader = PdfReader(pdf)
         
         text = ""
         for page in pdf_reader.pages:
             text += page.extract_text()
- 
+
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=200,
             length_function=len
             )
         chunks = text_splitter.split_text(text=text)
- 
-        # # embeddings
+
         store_name = pdf.name[:-4]
         st.write(f'{store_name}')
-        # st.write(chunks)
- 
+
         if os.path.exists(f"{store_name}.pkl"):
             with open(f"{store_name}.pkl", "rb") as f:
                 VectorStore = pickle.load(f)
-            # st.write('Embeddings Loaded from the Disk')s
         else:
             embeddings = OpenAIEmbeddings()
             VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
             with open(f"{store_name}.pkl", "wb") as f:
                 pickle.dump(VectorStore, f)
- 
-        # embeddings = OpenAIEmbeddings()
-        # VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
- 
-        # Accept user questions/query
+
         query = st.text_input("Ask questions about your PDF file:")
-        # st.write(query)
-        
+
         if query:
             docs = VectorStore.similarity_search(query=query, k=3)
-            llm = ChatOpenAI(max_tokens=2000, temperature=0.5)
-            chain = load_qa_chain(llm=llm, chain_type="stuff")
-            with get_openai_callback() as cb:
-                response = chain.run(input_documents=docs, question=query)
-                print(cb)
+            response = get_response(query)
             st.write(response)
 
 if __name__ == '__main__':
