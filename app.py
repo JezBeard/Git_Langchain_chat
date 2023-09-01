@@ -9,7 +9,7 @@ faiss-cpu==1.7.4
 streamlit-extras
 '''
 import streamlit as st
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 import pickle
 from PyPDF2 import PdfReader
 from streamlit_extras.add_vertical_space import add_vertical_space
@@ -38,7 +38,7 @@ with st.sidebar:
     add_vertical_space(5)
     st.write('Made with ❤️ by Jez')
  
-load_dotenv()
+##load_dotenv()
  
 def main():
     st.header("Jezza's Chat with a PDF 💬👾🤖")
