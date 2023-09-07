@@ -121,9 +121,9 @@ def main():
                 print(cb)
             st.write(response)
 
-        else:
-            response = "Please enter a query or select a suggestion to get a response."
-            st.write(response)
+        # else:
+        #     response = "Please enter a query or select a suggestion to get a response."
+        #     st.write(response)
 
 if __name__ == '__main__':
     main()
