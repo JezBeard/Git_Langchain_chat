@@ -94,11 +94,11 @@ def main():
             # process query
         elif suggestion_submit:
             # process suggestion
-            else:
+        else:
             response = "Please enter a query or select a suggestion and click on the submit button to get a response."
             st.write(response)
 
-        elif suggestion:
+        if suggestion:
             query = suggestion
             docs = VectorStore.similarity_search(query=query, k=3)
             llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
