@@ -82,7 +82,6 @@ def main():
         # VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
  
         # Accept user questions/query
-        # Accept user questions/query
         query = st.text_input("Ask question's about your PDF file:")
         query_submit = st.button("Submit Query")
 
@@ -92,8 +91,23 @@ def main():
 
         if query_submit:
             # process query
+            docs = VectorStore.similarity_search(query=query, k=3)
+            llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+            chain = load_qa_chain(llm=llm, chain_type="stuff")
+            with get_openai_callback() as cb:
+                response = chain.run(input_documents=docs, question=query)
+                print(cb)
+            st.write(response)
         elif suggestion_submit:
-            # process suggestion
+             # process suggestion
+            query = suggestion
+            docs = VectorStore.similarity_search(query=query, k=3)
+            llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+            chain = load_qa_chain(llm=llm, chain_type="stuff")
+            with get_openai_callback() as cb:
+                response = chain.run(input_documents=docs, question=query)
+                print(cb)
+            st.write(response)
         else:
             response = "Please enter a query or select a suggestion and click on the submit button to get a response."
             st.write(response)
