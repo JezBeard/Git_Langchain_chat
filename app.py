@@ -110,7 +110,6 @@ def main():
             st.write(response)
         else:
             response = "Please enter a query or select a suggestion and click on the submit button to get a response."
-            add_vertical_space(3)
             st.write(response)
 
         # if suggestion:
