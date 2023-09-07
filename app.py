@@ -94,7 +94,7 @@ def main():
             # process query
             elif suggestion_submit:
                 # process suggestion
-            else:
+                else:
                 response = "Please enter a query or select a suggestion and click on the submit button to get a response."
                 st.write(response)
 
