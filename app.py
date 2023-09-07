@@ -88,7 +88,7 @@ def main():
         suggestion = st.radio("Or select a suggestion:", suggestions)
     
 
-        if query_submit:
+        if query:
             # process query
             docs = VectorStore.similarity_search(query=query, k=3)
             llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
@@ -97,7 +97,7 @@ def main():
                 response = chain.run(input_documents=docs, question=query)
                 print(cb)
             st.write(response)
-        elif suggestion_submit:
+        elif suggestion:
              # process suggestion
             query = suggestion
             docs = VectorStore.similarity_search(query=query, k=3)
