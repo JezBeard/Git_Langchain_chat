@@ -108,9 +108,6 @@ def main():
                 response = chain.run(input_documents=docs, question=query)
                 print(cb)
             st.write(response)
-        else:
-            response = "Please enter a query or select a suggestion and click on the submit button to get a response."
-            st.write(response)
 
         # if suggestion:
         #     query = suggestion
