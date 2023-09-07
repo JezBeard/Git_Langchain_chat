@@ -82,17 +82,20 @@ def main():
         # VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
  
         # Accept user questions/query
+        # Accept user questions/query
         query = st.text_input("Ask question's about your PDF file:")
+        query_submit = st.button("Submit Query")
+
         suggestions = ["What is the main topic of the document?", "Can you summarize the document in 200 words?", "What are the key points mentioned in the document?", "What is the conclusion of the document?", "Can you provide an overview of the document's content?"]
         suggestion = st.selectbox("Or select a suggestion:", suggestions)
+        suggestion_submit = st.button("Submit Suggestion")
 
-        if query:
-            docs = VectorStore.similarity_search(query=query, k=3)
-            llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
-            chain = load_qa_chain(llm=llm, chain_type="stuff")
-            with get_openai_callback() as cb:
-                response = chain.run(input_documents=docs, question=query)
-                print(cb)
+        if query_submit:
+            # process query
+        elif suggestion_submit:
+            # process suggestion
+        else:
+            response = "Please enter a query or select a suggestion and click on the submit button to get a response."
             st.write(response)
 
         elif suggestion:
