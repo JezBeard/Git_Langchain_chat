@@ -83,11 +83,10 @@ def main():
  
         # Accept user questions/query
         query = st.text_input("Ask question's about your PDF file:")
-        query_submit = st.button("Submit Query")
 
         suggestions = ["What is the main topic of the document?", "Can you summarize the document in 200 words?", "What are the key points mentioned in the document?", "What is the conclusion of the document?", "Can you provide an overview of the document's content?"]
-        suggestion = st.selectbox("Or select a suggestion:", suggestions)
-        suggestion_submit = st.button("Submit Suggestion")
+        suggestion = st.radio("Or select a suggestion:", suggestions)
+    
 
         if query_submit:
             # process query
