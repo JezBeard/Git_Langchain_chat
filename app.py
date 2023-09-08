@@ -42,7 +42,7 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 ##load_dotenv()
  
 def main():
-    st.header("Summarize a PDF 💬👨🏻‍💻🤖")
+    st.header("Chat to a PDF 💬👨🏻‍💻🤖")
  
  
     # upload a PDF file
