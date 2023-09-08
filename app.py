@@ -97,10 +97,7 @@ def main():
                 response = chain.run(input_documents=docs, question=query)
                 print(cb)
             st.write(response)
-<<<<<<< HEAD
 
-=======
->>>>>>> parent of 078848a (Update app.py)
         elif suggestion:
              # process suggestion
             query = suggestion
