@@ -96,16 +96,8 @@ def main():
             chain = load_qa_chain(llm=llm, chain_type="stuff")
             with get_openai_callback() as cb:
                 response = chain.run(input_documents=docs, question=query)
-            #     print(cb)
-            # st.write(response)
-            for event in response: 
-            # STREAM THE ANSWER
-                print(answer, end='', flush=True) # Print the response    
-                # RETRIEVE THE TEXT FROM THE RESPONSE
-                event_time = time.time() - start_time  # CALCULATE TIME DELAY BY THE EVENT
-                event_text = event['choices'][0]['delta'] # EVENT DELTA RESPONSE
-                answer = event_text.get('content', '') # RETRIEVE CONTENT
-                time.sleep(delay_time)
+                print(cb)
+            st.write(response)
 
         elif suggestion:
              # process suggestion
