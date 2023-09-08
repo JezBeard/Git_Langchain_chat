@@ -87,7 +87,7 @@ def main():
 
         suggestions = ["", "What is the main topic of the document?", "Can you summarize the document in 200 words?", "What are the key points mentioned in the document?", "What is the conclusion of the document?", "Can you provide an overview of the document's content?"]
     
-        suggestion = st.selectbox("Or select a suggestion:", suggestions, index=0)
+        suggestion = st.selectbox("Or select a suggestion: (ENSURE QUESTION FIELD ABOVE IS BLANK)", suggestions, index=0)
 
         if query:
             # process query
