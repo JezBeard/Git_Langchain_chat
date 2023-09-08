@@ -25,24 +25,24 @@ import openai
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
  
-# Sidebar contents
-with st.sidebar:
-    st.title('💬 PDF Chat App')
-    st.markdown('''
-    ## About
-    This app is an LLM-powered chatbot built using:
-    - Streamlit
-    - LangChain
-    - OpenAI LLM model
+# # Sidebar contents
+# with st.sidebar:
+#     st.title('💬 PDF Chat App')
+#     st.markdown('''
+#     ## About
+#     This app is an LLM-powered chatbot built using:
+#     - Streamlit
+#     - LangChain
+#     - OpenAI LLM model
  
-    ''')
-    add_vertical_space(5)
-    st.write('Made with ❤️ by Jez')
+#     ''')
+#     add_vertical_space(5)
+#     st.write('Made with ❤️ by Jez')
  
 ##load_dotenv()
  
 def main():
-    st.header("Jezza's Chat with a PDF 💬👾🤖")
+    st.header("Summarize a PDF 💬👨🏻‍💻🤖")
  
  
     # upload a PDF file
