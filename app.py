@@ -100,12 +100,12 @@ def main():
             # st.write(response)
             for event in response: 
             # STREAM THE ANSWER
-            print(answer, end='', flush=True) # Print the response    
-            # RETRIEVE THE TEXT FROM THE RESPONSE
-            event_time = time.time() - start_time  # CALCULATE TIME DELAY BY THE EVENT
-            event_text = event['choices'][0]['delta'] # EVENT DELTA RESPONSE
-            answer = event_text.get('content', '') # RETRIEVE CONTENT
-            time.sleep(delay_time)
+                print(answer, end='', flush=True) # Print the response    
+                # RETRIEVE THE TEXT FROM THE RESPONSE
+                event_time = time.time() - start_time  # CALCULATE TIME DELAY BY THE EVENT
+                event_text = event['choices'][0]['delta'] # EVENT DELTA RESPONSE
+                answer = event_text.get('content', '') # RETRIEVE CONTENT
+                time.sleep(delay_time)
 
         elif suggestion:
              # process suggestion
