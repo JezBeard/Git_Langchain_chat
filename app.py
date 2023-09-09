@@ -51,7 +51,7 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 
 def main():
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+    #st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.header("Chat to a PDF 💬👨🏻‍💻🤖")
     
     # upload a PDF file
