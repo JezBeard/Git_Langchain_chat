@@ -47,8 +47,8 @@ def main():
  
  
     # upload a PDF file
-    pdf = st.file_uploader("Upload your PDF (just one for now)", type='pdf', accept_multiple_files=True)
- 
+    pdf = st.file_uploader("Upload your PDF (just one for now)", accept_multiple_files=True)
+ #type='pdf',
     # st.write(pdf)
     if pdf is not None:
         pdf_reader = PdfReader(pdf)
@@ -65,9 +65,8 @@ def main():
         chunks = text_splitter.split_text(text=text)
  
         # # embeddings
-        for pdf in pdf:
-            store_name = pdf.name[:-4]
-            st.write(f'{store_name}')
+        store_name = pdf.name[:-4]
+        st.write(f'{store_name}')
         # st.write(chunks)
  
         # if os.path.exists(f"{store_name}.pkl"):
