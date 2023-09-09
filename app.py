@@ -42,16 +42,16 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
  
 ##load_dotenv()
  
-# hide_streamlit_style = """
-#     <style>
-#     #MainMenu {visibility: hidden;}
-#     footer {visibility: hidden;}
-#     </style>
-#     """
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+    """
 
 
 def main():
-    #st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.header("Chat to a PDF 💬👨🏻‍💻🤖")
     
     # upload a PDF file
