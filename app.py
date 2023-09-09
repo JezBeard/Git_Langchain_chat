@@ -42,12 +42,12 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
  
 ##load_dotenv()
  
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-    """
+# hide_streamlit_style = """
+#     <style>
+#     #MainMenu {visibility: hidden;}
+#     footer {visibility: hidden;}
+#     </style>
+#     """
 
 
 def main():
