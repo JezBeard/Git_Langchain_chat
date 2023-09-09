@@ -65,8 +65,9 @@ def main():
         chunks = text_splitter.split_text(text=text)
  
         # # embeddings
-        store_name = pdf.name[:-4]
-        st.write(f'{store_name}')
+        for pdf in pdf:
+            store_name = pdf.name[:-4]
+            st.write(f'{store_name}')
         # st.write(chunks)
  
         # if os.path.exists(f"{store_name}.pkl"):
