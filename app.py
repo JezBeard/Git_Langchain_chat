@@ -47,7 +47,7 @@ def main():
  
  
     # upload a PDF file
-    pdf = st.file_uploader("Upload your PDF (just one for now)", type='pdf')
+    pdf = st.file_uploader("Upload your PDF (just one for now)", type='pdf', accept_multiple_files=True)
  
     # st.write(pdf)
     if pdf is not None:
