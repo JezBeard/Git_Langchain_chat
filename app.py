@@ -51,7 +51,7 @@ hide_streamlit_style = """
 
 
 def main():
-    st.markdown(hide_streamlit_style) 
+    #st.markdown(hide_streamlit_style) 
     #unsafe_allow_html=True
     st.header("Chat to a PDF 💬👨🏻‍💻🤖")
     
