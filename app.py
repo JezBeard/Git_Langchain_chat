@@ -42,6 +42,15 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
  
 ##load_dotenv()
  
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+    """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
+
 def main():
     st.header("Chat to a PDF 💬👨🏻‍💻🤖")
     
@@ -124,14 +133,6 @@ def main():
         # else:
         #     response = "Please enter a query or select a suggestion to get a response."
         #     st.write(response)
-
-    hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 if __name__ == '__main__':
     main()
