@@ -93,7 +93,7 @@ def main():
         # Accept user questions/query
         query = st.text_input("Ask question's about your PDF file:")
 
-        suggestions = ["", "What is the main topic of the document?", "Summarize the document in 200 words?", "Provide a bullet point list of the key points mentioned in the document?", "Create the content for Powerpoint slides based on the document content", "Translate the first paragraph to French"]
+        suggestions = ["", "What is the main topic of the document?", "Summarize the document in 200 words?", "Provide a bullet point list of the key points mentioned in the document?", "Create the headings and subheadings for Powerpoint slides", "Translate the first paragraph to French"]
     
         suggestion = st.selectbox("Or select a suggestion: (ENSURE QUESTION FIELD ABOVE IS BLANK)", suggestions, index=0)
 
@@ -119,20 +119,6 @@ def main():
                 response = chain.run(input_documents=docs, question=query)
                 print(cb)
             st.write(response)
-
-        # if suggestion:
-        #     query = suggestion
-        #     docs = VectorStore.similarity_search(query=query, k=3)
-        #     llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
-        #     chain = load_qa_chain(llm=llm, chain_type="stuff")
-        #     with get_openai_callback() as cb:
-        #         response = chain.run(input_documents=docs, question=query)
-        #         print(cb)
-        #     st.write(response)
-
-        # else:
-        #     response = "Please enter a query or select a suggestion to get a response."
-        #     st.write(response)
 
 if __name__ == '__main__':
     main()
