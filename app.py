@@ -93,7 +93,7 @@ def main():
         # Accept user questions/query
         query = st.text_input("Ask question's about your PDF file:")
 
-        suggestions = ["", "What is the main topic of the document?", "Can you summarize the document in 200 words?", "What are the key points mentioned in the document?", "What is the conclusion of the document?", "Can you provide an overview of the document's content?"]
+        suggestions = ["", "What is the main topic of the document?", "Summarize the document in 200 words?", "Provide a bullet point list of the key points mentioned in the document?", "Create an outline for a Powerpoint presentation based on the document content", "Translate the first paragraph to French"]
     
         suggestion = st.selectbox("Or select a suggestion: (ENSURE QUESTION FIELD ABOVE IS BLANK)", suggestions, index=0)
 
