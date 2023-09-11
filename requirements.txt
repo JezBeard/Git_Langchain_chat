@@ -1,7 +1,7 @@
 pip
 langchain
 PyPDF2
-docx
+python-docx
 python-dotenv
 streamlit
 faiss-cpu
