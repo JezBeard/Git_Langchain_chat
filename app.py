@@ -39,72 +39,87 @@ def read_docx(file):
         text += paragraph.text
     return text
 
+def get_state():
+    session_id = ReportThread.get_report_ctx().session_id
+    session = Server.get_current()._get_session_info(session_id).session
+    if not hasattr(session, '_custom_session_state'):
+        session._custom_session_state = SessionState()
+    return session._custom_session_state
+
+class SessionState:
+    def __init__(self):
+        self.text = ""
+
 def main():
+    if 'text' not in st.session_state:
+        st.session_state['text'] = ""
+
     st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.header("Chat to a Document 💬👨🏻‍💻🤖")
     
     # Add a radio button for the user to select the input method
     input_method = st.radio("Choose your input method:", ("Upload a document", "Paste text or web address"))
 
-    text = ""
     if input_method == "Upload a document":
         # upload a PDF or Word file
         file = st.file_uploader("Upload your PDF or Word document (just one for now)", type=['pdf', 'docx'])
 
         if file is not None:
             if file.type == 'application/pdf':
-                text = read_pdf(file)
+                st.session_state['text'] = read_pdf(file)
             elif file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                text = read_docx(file)
+                st.session_state['text'] = read_docx(file)
             else:
                 st.error("Unsupported file type. Please upload a PDF or Word document.")
                 return
-            store_name = file.name[:-4]
+            store_name = file.name
         else:
             st.error("Please upload a file.")
             return
     else:
-    # Paste text or URL
+        # Paste text or URL
         text_or_url = st.text_area("Paste your text or URL here: URLS must be in format https://")
+        process_button = st.button("Process Text")
         store_name = "pasted_text_or_url"
+        
+        if process_button:
+            if text_or_url:
+                # Check if it's a URL
+                if text_or_url.startswith('http://') or text_or_url.startswith('https://'):
+                    # It's a URL, fetch the content
+                    response = requests.get(text_or_url)
 
-        # Check if it's a URL
-        if text_or_url.startswith('http://') or text_or_url.startswith('https://'):
-            # It's a URL, fetch the content
-            response = requests.get(text_or_url)
-
-            # Check if it's a HTML page
-            if 'text/html' in response.headers['Content-Type']:
-                # Parse the HTML content with BeautifulSoup
-                soup = BeautifulSoup(response.content, 'html.parser')
-                # Extract all paragraph texts
-                text = ' '.join(p.get_text() for p in soup.find_all('p'))
-            else:
-                # It's not a HTML page, just use the raw content
-                text = response.text
-
-            store_name = "fetched_url_content"
-        else:
-            # It's not a URL, just use the pasted text
-            text = text_or_url
-
-        store_name = "fetched_url_content"
+                    # Check if it's a HTML page
+                    if 'text/html' in response.headers['Content-Type']:
+                        # Parse the HTML content with BeautifulSoup
+                        soup = BeautifulSoup(response.content, 'html.parser')
+                        # Extract all paragraph texts
+                        text = ' '.join(p.get_text() for p in soup.find_all('p'))
+                        store_name = "fetched_url_content"
+                    else:
+                        # It's not a HTML page, just use the raw content
+                        text = response.text
+                        store_name = "fetched_url_content"
+                else:
+                    # It's not a URL, just use the pasted text
+                    text = text_or_url
+                    store_name = "pasted_text"
+                st.session_state['text'] = text  # Store the text in the session state
 
     # Check if text is provided
-    if not text:
+    if not st.session_state['text']:  # Use the text from the session state
         st.error("Please provide some text either by uploading a document or pasting text.")
         return
 
-            # Process the pasted text
-            # The rest of your code remains the same...
+    # Process the pasted text
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=350,
         chunk_overlap=50,
         length_function=len
-        )
-    chunks = text_splitter.split_text(text=text)
+    )
+    chunks = text_splitter.split_text(text=st.session_state['text'])  # Use the text from the session state
 
-    st.write(f'{store_name}')
+    #st.write(f'{store_name}')
 
     embeddings = OpenAIEmbeddings()
     VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
