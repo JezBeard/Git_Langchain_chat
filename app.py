@@ -18,12 +18,12 @@ import time
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# hide_streamlit_style = """
-#     <style>
-#     #MainMenu {visibility: hidden;}
-#     footer {visibility: hidden;}
-#     </style>
-#     """
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+    """
 
 def read_pdf(file):
     pdf_reader = PdfReader(file)
@@ -40,7 +40,7 @@ def read_docx(file):
     return text
 
 def main():
-    # st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.header("Chat to a Document 💬👨🏻‍💻🤖")
     
     # Add a radio button for the user to select the input method
