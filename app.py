@@ -18,12 +18,12 @@ import time
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-    """
+# hide_streamlit_style = """
+#     <style>
+#     #MainMenu {visibility: hidden;}
+#     footer {visibility: hidden;}
+#     </style>
+#     """
 
 def read_pdf(file):
     pdf_reader = PdfReader(file)
