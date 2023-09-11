@@ -40,7 +40,7 @@ def read_docx(file):
     return text
 
 def main():
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+    # st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.header("Chat to a Document 💬👨🏻‍💻🤖")
     
     # Add a radio button for the user to select the input method
