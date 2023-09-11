@@ -1,9 +1,7 @@
 import streamlit as st
 import pickle
-import requests
 from PyPDF2 import PdfReader
 from docx import Document
-from bs4 import BeautifulSoup
 from streamlit_extras.add_vertical_space import add_vertical_space
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
@@ -43,60 +41,31 @@ def main():
     st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.header("Chat to a Document 💬👨🏻‍💻🤖")
     
-    # Add a radio button for the user to select the input method
-    input_method = st.radio("Choose your input method:", ("Upload a document", "Paste text or web address"))
+    # upload a PDF or Word file
+    file = st.file_uploader("Upload your PDF or Word document (just one for now)", type=['pdf', 'docx'])
 
-    text = ""
-    if input_method == "Upload a document":
-        # upload a PDF or Word file
-        file = st.file_uploader("Upload your PDF or Word document (just one for now)", type=['pdf', 'docx'])
+    # Add a text area for user to paste text
+    user_text = st.text_area("Or paste your text here:")
 
-        if file is not None:
-            if file.type == 'application/pdf':
-                text = read_pdf(file)
-            elif file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                text = read_docx(file)
-            else:
-                st.error("Unsupported file type. Please upload a PDF or Word document.")
-                return
-            store_name = file.name[:-4]
+        # Add a button for the user to click to submit text
+    submit_button = st.button('Submit')
+
+    if file is not None:
+        if file.type == 'application/pdf':
+            text = read_pdf(file)
+        elif file.type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+            text = read_docx(file)
         else:
-            st.error("Please upload a file.")
+            st.error("Unsupported file type. Please upload a PDF or Word document.")
             return
+        store_name = file.name[:-4]
+    elif user_text and submit_button:
+        text = user_text
+        store_name = "user_text"
     else:
-    # Paste text or URL
-        text_or_url = st.text_area("Paste your text or URL here: URLS must be in format https://")
-        store_name = "pasted_text_or_url"
-
-        # Check if it's a URL
-        if text_or_url.startswith('http://') or text_or_url.startswith('https://'):
-            # It's a URL, fetch the content
-            response = requests.get(text_or_url)
-
-            # Check if it's a HTML page
-            if 'text/html' in response.headers['Content-Type']:
-                # Parse the HTML content with BeautifulSoup
-                soup = BeautifulSoup(response.content, 'html.parser')
-                # Extract all paragraph texts
-                text = ' '.join(p.get_text() for p in soup.find_all('p'))
-            else:
-                # It's not a HTML page, just use the raw content
-                text = response.text
-
-            store_name = "fetched_url_content"
-        else:
-            # It's not a URL, just use the pasted text
-            text = text_or_url
-
-        store_name = "fetched_url_content"
-
-    # Check if text is provided
-    if not text:
-        st.error("Please provide some text either by uploading a document or pasting text.")
+        st.error("Please upload a file or paste text.")
         return
-
-            # Process the pasted text
-            # The rest of your code remains the same...
+    
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=350,
         chunk_overlap=50,
