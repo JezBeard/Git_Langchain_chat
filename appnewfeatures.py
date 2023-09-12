@@ -95,11 +95,13 @@ def main():
                         soup = BeautifulSoup(response.content, 'html.parser')
                         # Extract all paragraph texts
                         text = ' '.join(p.get_text() for p in soup.find_all('p'))
-                        store_name = "fetched_url_content"
+                        st.text_area("**Fetched Information from site:  Note that some websites block content access so the fetched information may be limited**", text)  # Display the fetched information in a text box
                     else:
                         # It's not a HTML page, just use the raw content
                         text = response.text
-                        store_name = "fetched_url_content"
+                        st.text_area("Fetched Information:", text)  # Display the fetched information in a text box
+
+                    store_name = "fetched_url_content"
                 else:
                     # It's not a URL, just use the pasted text
                     text = text_or_url
