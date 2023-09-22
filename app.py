@@ -15,7 +15,6 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import os
 import openai
 import time
-import validators
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -47,20 +46,6 @@ def get_state():
         session._custom_session_state = SessionState()
     return session._custom_session_state
 
-def format_url(url):
-    # Check if the input looks like a URL (contains no spaces and has a dot somewhere in the middle)
-    if ' ' not in url and '.' in url[1:-1]:
-        # Add https:// to the beginning of the URL if it doesn't already start with http:// or https://
-        if not url.startswith('http://') and not url.startswith('https://'):
-            url = 'https://' + url
-
-        # Check if the result is a valid URL
-        if validators.url(url):
-            return url
-
-    # If the input doesn't look like a URL or isn't a valid URL, return None
-    return None
-
 class SessionState:
     def __init__(self):
         self.text = ""
@@ -91,21 +76,18 @@ def main():
         else:
             st.error("Please upload a file.")
             return
-
-    else:  # This else corresponds to the if input_method == "Upload a document":
+    else:
         # Paste text or URL
-        text_or_url = st.text_area("Paste your text or URL here:")
+        text_or_url = st.text_area("Paste your text or URL here: URLS must be in format https://")
         process_button = st.button("Process Text")
+        store_name = "pasted_text_or_url"
         
         if process_button:
             if text_or_url:
-                # Format the URL
-                formatted_input = format_url(text_or_url)
-
                 # Check if it's a URL
-                if formatted_input is not None:
+                if text_or_url.startswith('http://') or text_or_url.startswith('https://'):
                     # It's a URL, fetch the content
-                    response = requests.get(formatted_input)
+                    response = requests.get(text_or_url)
 
                     # Check if it's a HTML page
                     if 'text/html' in response.headers['Content-Type']:
@@ -124,12 +106,12 @@ def main():
                     # It's not a URL, just use the pasted text
                     text = text_or_url
                     store_name = "pasted_text"
-                st.session_state['text'] = text    
+                st.session_state['text'] = text  # Store the text in the session state
 
     # Check if text is provided
     if not st.session_state['text']:  # Use the text from the session state
         st.error("Please provide some text either by uploading a document or pasting text.")
-        return    
+        return
 
     # Process the pasted text
     text_splitter = RecursiveCharacterTextSplitter(
