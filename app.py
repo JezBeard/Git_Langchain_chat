@@ -100,13 +100,7 @@ def main():
                 # Check if it's a URL
                 if text_or_url.startswith('https://'):
                     # It's a URL, fetch the content
-                    # It's a URL, try to fetch the content
-                    try:
-                        response = requests.get(text_or_url)
-                        response.raise_for_status()  # Raise an exception if the request was unsuccessful
-                    except requests.exceptions.RequestException as e:
-                        st.error(f"Could not access the URL. Please check if the URL is correct and try again. Error: {e}")
-                        return
+                    response = requests.get(text_or_url)
 
                     # Check if it's a HTML page
                     if 'text/html' in response.headers['Content-Type']:
