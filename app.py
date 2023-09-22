@@ -95,41 +95,40 @@ def main():
         # Paste text or URL
         text_or_url = st.text_area("Paste your text or URL here:")
         process_button = st.button("Process Text")
-        store_name = "pasted_text_or_url"
         
         if process_button:
             if text_or_url:
                 # Format the URL
                 formatted_input = format_url(text_or_url)
-                # It's a URL, fetch the content
-                response = requests.get(formatted_input)
 
-            # Check if it's a HTML page
-            if 'text/html' in response.headers['Content-Type']:
-                # Parse the HTML content with BeautifulSoup
-                soup = BeautifulSoup(response.content, 'html.parser')
-                # Extract all paragraph texts
-                text = ' '.join(p.get_text() for p in soup.find_all('p'))
-                st.text_area("**Fetched Information from site:  Note that some websites block content access so the fetched information may be limited**", text)  # Display the fetched information in a text box
-            else:
-                # It's not a HTML page, just use the raw content
-                text = response.text
-                st.text_area("Fetched Information:", text)  # Display the fetched information in a text box
-
-            store_name = "fetched_url_content"
                 # Check if it's a URL
                 if formatted_input is not None:
                     # It's a URL, fetch the content
-                    # Place your URL processing code here
-                    # For example:
-                    # response = requests.get(formatted_input)
-                    # text = response.text
-                
+                    response = requests.get(formatted_input)
+
+                    # Check if it's a HTML page
+                    if 'text/html' in response.headers['Content-Type']:
+                        # Parse the HTML content with BeautifulSoup
+                        soup = BeautifulSoup(response.content, 'html.parser')
+                        # Extract all paragraph texts
+                        text = ' '.join(p.get_text() for p in soup.find_all('p'))
+                        st.text_area("**Fetched Information from site:  Note that some websites block content access so the fetched information may be limited**", text)  # Display the fetched information in a text box
+                    else:
+                        # It's not a HTML page, just use the raw content
+                        text = response.text
+                        st.text_area("Fetched Information:", text)  # Display the fetched information in a text box
+
+                    store_name = "fetched_url_content"
                 else:
                     # It's not a URL, just use the pasted text
                     text = text_or_url
                     store_name = "pasted_text"
                 st.session_state['text'] = text    
+
+# Check if text is provided
+if not st.session_state['text']:  # Use the text from the session state
+    st.error("Please provide some text either by uploading a document or pasting text.")
+    return    
 
     # Check if text is provided
     if not st.session_state['text']:  # Use the text from the session state
