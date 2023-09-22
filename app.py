@@ -91,7 +91,8 @@ def main():
         else:
             st.error("Please upload a file.")
             return
-        else:
+
+    else:  # This else corresponds to the if input_method == "Upload a document":
         # Paste text or URL
         text_or_url = st.text_area("Paste your text or URL here:")
         process_button = st.button("Process Text")
@@ -125,15 +126,10 @@ def main():
                     store_name = "pasted_text"
                 st.session_state['text'] = text    
 
-# Check if text is provided
-if not st.session_state['text']:  # Use the text from the session state
-    st.error("Please provide some text either by uploading a document or pasting text.")
-    return    
-
     # Check if text is provided
     if not st.session_state['text']:  # Use the text from the session state
         st.error("Please provide some text either by uploading a document or pasting text.")
-        return
+        return    
 
     # Process the pasted text
     text_splitter = RecursiveCharacterTextSplitter(
