@@ -88,7 +88,7 @@ def main():
             return
     else:
         # Paste text or URL
-        text_or_url = st.text_area("Paste your text or URL here: URLS must be in format https://")
+        text_or_url = st.text_area("Paste your text or URL here:")
         process_button = st.button("Process Text")
         store_name = "pasted_text_or_url"
         
