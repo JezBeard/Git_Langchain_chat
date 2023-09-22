@@ -46,6 +46,16 @@ def get_state():
         session._custom_session_state = SessionState()
     return session._custom_session_state
 
+def format_url(url):
+    if url.startswith('http://'):
+        url = url.replace('http://', 'https://')
+    elif not url.startswith('https://'):
+        if url.startswith('www.'):
+            url = 'https://' + url
+        else:
+            url = 'https://www.' + url
+    return url
+
 class SessionState:
     def __init__(self):
         self.text = ""
@@ -84,8 +94,11 @@ def main():
         
         if process_button:
             if text_or_url:
+                # Format the URL
+                text_or_url = format_url(text_or_url)
+
                 # Check if it's a URL
-                if text_or_url.startswith('http://') or text_or_url.startswith('https://'):
+                if text_or_url.startswith('https://'):
                     # It's a URL, fetch the content
                     response = requests.get(text_or_url)
 
@@ -106,7 +119,7 @@ def main():
                     # It's not a URL, just use the pasted text
                     text = text_or_url
                     store_name = "pasted_text"
-                st.session_state['text'] = text  # Store the text in the session state
+                st.session_state['text'] = text  
 
     # Check if text is provided
     if not st.session_state['text']:  # Use the text from the session state
