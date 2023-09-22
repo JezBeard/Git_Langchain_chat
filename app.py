@@ -15,6 +15,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import os
 import openai
 import time
+import validators
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -47,14 +48,18 @@ def get_state():
     return session._custom_session_state
 
 def format_url(url):
-    if url.startswith('http://'):
-        url = url.replace('http://', 'https://')
-    elif not url.startswith('https://'):
-        if url.startswith('www.'):
+    # Check if the input looks like a URL (contains no spaces and has a dot somewhere in the middle)
+    if ' ' not in url and '.' in url[1:-1]:
+        # Add https:// to the beginning of the URL if it doesn't already start with http:// or https://
+        if not url.startswith('http://') and not url.startswith('https://'):
             url = 'https://' + url
-        else:
-            url = 'https://www.' + url
-    return url
+
+        # Check if the result is a valid URL
+        if validators.url(url):
+            return url
+
+    # If the input doesn't look like a URL or isn't a valid URL, return None
+    return None
 
 class SessionState:
     def __init__(self):
@@ -95,31 +100,17 @@ def main():
         if process_button:
             if text_or_url:
                 # Format the URL
-                text_or_url = format_url(text_or_url)
+                formatted_input = format_url(text_or_url)
 
                 # Check if it's a URL
-                if text_or_url.startswith('https://'):
+                if formatted_input is not None:
                     # It's a URL, fetch the content
-                    response = requests.get(text_or_url)
-
-                    # Check if it's a HTML page
-                    if 'text/html' in response.headers['Content-Type']:
-                        # Parse the HTML content with BeautifulSoup
-                        soup = BeautifulSoup(response.content, 'html.parser')
-                        # Extract all paragraph texts
-                        text = ' '.join(p.get_text() for p in soup.find_all('p'))
-                        st.text_area("**Fetched Information from site:  Note that some websites block content access so the fetched information may be limited**", text)  # Display the fetched information in a text box
-                    else:
-                        # It's not a HTML page, just use the raw content
-                        text = response.text
-                        st.text_area("Fetched Information:", text)  # Display the fetched information in a text box
-
-                    store_name = "fetched_url_content"
+                    # ... rest of your code ...
                 else:
                     # It's not a URL, just use the pasted text
                     text = text_or_url
                     store_name = "pasted_text"
-                st.session_state['text'] = text  
+                st.session_state['text'] = text    
 
     # Check if text is provided
     if not st.session_state['text']:  # Use the text from the session state
