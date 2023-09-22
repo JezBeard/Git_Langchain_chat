@@ -106,6 +106,7 @@ def main():
                 if formatted_input is not None:
                     # It's a URL, fetch the content
                     # ... rest of your code ...
+                    pass
                 else:
                     # It's not a URL, just use the pasted text
                     text = text_or_url
