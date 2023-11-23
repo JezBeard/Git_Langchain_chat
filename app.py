@@ -62,7 +62,7 @@ def main():
 
     if input_method == "Upload a document":
         # upload a PDF or Word file
-        file = st.file_uploader("Upload your PDF or Word document (just one for now)", type=['pdf', 'docx'])
+        file = st.file_uploader("Load your PDF or Word document (just one for now)", type=['pdf', 'docx'])
 
         if file is not None:
             if file.type == 'application/pdf':
