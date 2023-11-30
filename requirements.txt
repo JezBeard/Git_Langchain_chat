@@ -10,3 +10,4 @@ streamlit-extras
 altair<5
 tiktoken
 beautifulsoup4
+pycryptodome
