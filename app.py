@@ -15,6 +15,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import os
 import openai
 import time
+import dill
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -126,7 +127,7 @@ def main():
     embeddings = OpenAIEmbeddings()
     VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
     with open(f"{store_name}.pkl", "wb") as f:
-        pickle.dump(VectorStore, f)
+        dill.dump(VectorStore, f)
 
     query = st.text_input("Ask question's about your document:")
 
