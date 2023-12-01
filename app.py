@@ -1,5 +1,4 @@
 import streamlit as st
-import pickle
 import requests
 from PyPDF2 import PdfReader
 from docx import Document
