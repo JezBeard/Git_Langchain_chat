@@ -126,7 +126,7 @@ def main():
     elif suggestion:
         query = suggestion
         docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-4o', max_tokens=4000, temperature=0.2)
         chain = load_qa_chain(llm=llm, chain_type="stuff")
         with get_openai_callback() as cb, st.spinner('Working on response...'):
             time.sleep(3)
