@@ -129,7 +129,7 @@ def main():
 
     if query:
         docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-4o', max_tokens=4000, temperature=0.2)
         
         message = """
         Answer this question using the provided context only.
@@ -158,10 +158,10 @@ def main():
     elif suggestion:
         query = suggestion
         docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-4o', max_tokens=4000, temperature=0.1)
         
         message = """
-        Answer this question using the provided context only. Respond like a drunk pirate.
+        Answer this question using the provided context only. 
 
         {question}
 
