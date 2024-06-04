@@ -8,7 +8,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
-from langchain.chains.question_answering import load_qa_chain
+#from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import ChatVectorDBChain
 from langchain.callbacks import get_openai_callback
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.prompts import PromptTemplate, SystemMessagePromptTemplate
@@ -129,11 +130,16 @@ def main():
         human_template = "Context: {context}\nQuestion: {question}"
         human_message_prompt = PromptTemplate.from_template(human_template)
         
-        chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=human_message_prompt, system_message_prompt=system_message_prompt)
+        chain = ChatVectorDBChain.from_llm(
+            llm=llm,
+            vectorstore=VectorStore,
+            qa_prompt=human_message_prompt,
+            system_prompt=system_message_prompt,
+        )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
             time.sleep(3)
-            response = chain.run(input_documents=docs, question=query)
+            response = chain.run(question=query)
             print(cb)
         st.write(response)
 
@@ -145,11 +151,16 @@ def main():
         human_template = "Context: {context}\nQuestion: {question}"
         human_message_prompt = PromptTemplate.from_template(human_template)
         
-        chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=human_message_prompt, system_message_prompt=system_message_prompt)
+        chain = ChatVectorDBChain.from_llm(
+            llm=llm,
+            vectorstore=VectorStore,
+            qa_prompt=human_message_prompt,
+            system_prompt=system_message_prompt,
+        )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
             time.sleep(3)
-            response = chain.run(input_documents=docs, question=query)
+            response = chain.run(question=query)
             print(cb)
         st.write(response)
 
