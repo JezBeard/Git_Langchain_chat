@@ -170,11 +170,10 @@ def main():
 
         prompt = ChatPromptTemplate.from_messages([("human", message)])
 
-        chain = RetrievalQA.from_chain_type(
+        chain = RetrievalQA.from_llm(
             llm=llm,
-            chain_type="stuff",
             retriever=VectorStore.as_retriever(),
-            chain_type_kwargs={"prompt": prompt},
+            combine_prompt=prompt,
         )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
