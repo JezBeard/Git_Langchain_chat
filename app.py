@@ -14,7 +14,6 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import os
 import openai
 import time
-import dill
 
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -39,17 +38,6 @@ def read_docx(file):
         text += paragraph.text
     return text
 
-def get_state():
-    session_id = ReportThread.get_report_ctx().session_id
-    session = Server.get_current()._get_session_info(session_id).session
-    if not hasattr(session, '_custom_session_state'):
-        session._custom_session_state = SessionState()
-    return session._custom_session_state
-
-class SessionState:
-    def __init__(self):
-        self.text = ""
-
 def main():
     if 'text' not in st.session_state:
         st.session_state['text'] = ""
@@ -72,7 +60,6 @@ def main():
             else:
                 st.error("Unsupported file type. Please upload a PDF or Word document.")
                 return
-            store_name = file.name
         else:
             st.error("Please upload a file.")
             return
@@ -80,7 +67,6 @@ def main():
         # Paste text or URL
         text_or_url = st.text_area("Paste your text or URL here: URLS must be in format https://")
         process_button = st.button("Process Text")
-        store_name = "pasted_text_or_url"
         
         if process_button:
             if text_or_url:
@@ -100,12 +86,9 @@ def main():
                         # It's not a HTML page, just use the raw content
                         text = response.text
                         st.text_area("Fetched Information:", text)  # Display the fetched information in a text box
-
-                    store_name = "fetched_url_content"
                 else:
                     # It's not a URL, just use the pasted text
                     text = text_or_url
-                    store_name = "pasted_text"
                 st.session_state['text'] = text  # Store the text in the session state
 
     # Check if text is provided
@@ -121,12 +104,8 @@ def main():
     )
     chunks = text_splitter.split_text(text=st.session_state['text'])  # Use the text from the session state
 
-    #st.write(f'{store_name}')
-
     embeddings = OpenAIEmbeddings()
     VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
-    with open(f"{store_name}.pkl", "wb") as f:
-        dill.dump(VectorStore, f)
 
     query = st.text_input("Ask question's about your document:")
 
