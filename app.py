@@ -114,14 +114,6 @@ def main():
 
     suggestion = st.selectbox("Or select a suggestion: (ENSURE QUESTION FIELD ABOVE IS BLANK)", suggestions, index=0)
 
-    system_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
-
-    {context}
-    
-    Question: {question}
-    """
-    system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
-
 if query:
     docs = VectorStore.similarity_search(query=query, k=3)
     llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
