@@ -104,8 +104,8 @@ def main():
 
     # Process the pasted text
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=350,
-        chunk_overlap=50,
+        chunk_size=1000,
+        chunk_overlap=200,
         length_function=len
     )
     chunks = text_splitter.split_text(text=st.session_state['text'])  # Use the text from the session state
