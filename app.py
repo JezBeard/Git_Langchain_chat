@@ -9,7 +9,8 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 #from langchain.chains.question_answering import load_qa_chain
-from langchain.chains import ChatVectorDBChain
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
 from langchain.callbacks import get_openai_callback
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.prompts import PromptTemplate, SystemMessagePromptTemplate
@@ -130,18 +131,21 @@ def main():
         human_template = "Context: {context}\nQuestion: {question}"
         human_message_prompt = PromptTemplate.from_template(human_template)
         
-        chain = ChatVectorDBChain.from_llm(
+        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        
+        chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            vectorstore=VectorStore,
+            retriever=VectorStore.as_retriever(),
+            memory=memory,
             qa_prompt=human_message_prompt,
             system_prompt=system_message_prompt,
         )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
             time.sleep(3)
-            response = chain.run(question=query)
+            response = chain({"question": query})
             print(cb)
-        st.write(response)
+        st.write(response['answer'])
 
     elif suggestion:
         query = suggestion
@@ -151,18 +155,21 @@ def main():
         human_template = "Context: {context}\nQuestion: {question}"
         human_message_prompt = PromptTemplate.from_template(human_template)
         
-        chain = ChatVectorDBChain.from_llm(
+        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+        
+        chain = ConversationalRetrievalChain.from_llm(
             llm=llm,
-            vectorstore=VectorStore,
+            retriever=VectorStore.as_retriever(),
+            memory=memory,
             qa_prompt=human_message_prompt,
             system_prompt=system_message_prompt,
         )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
             time.sleep(3)
-            response = chain.run(question=query)
+            response = chain({"question": query})
             print(cb)
-        st.write(response)
+        st.write(response['answer'])
 
 if __name__ == '__main__':
     main()
