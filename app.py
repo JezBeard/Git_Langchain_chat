@@ -124,52 +124,63 @@ def main():
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
-    if query:
+     if query:
         docs = VectorStore.similarity_search(query=query, k=3)
         llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
         
-        human_template = "Context: {context}\nQuestion: {question}"
-        human_message_prompt = PromptTemplate.from_template(human_template)
-        
-        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-        
-        chain = ConversationalRetrievalChain.from_llm(
+        message = """
+        Answer this question using the provided context only.
+
+        {question}
+
+        Context:
+        {context}
+        """
+
+        prompt = ChatPromptTemplate.from_messages([("human", message)])
+
+        chain = RetrievalQA.from_chain_type(
             llm=llm,
+            chain_type="stuff",
             retriever=VectorStore.as_retriever(),
-            memory=memory,
-            qa_prompt=human_message_prompt,
-            system_prompt=system_message_prompt,
+            chain_type_kwargs={"prompt": prompt},
         )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
             time.sleep(3)
-            response = chain({"question": query})
+            response = chain.run(query)
             print(cb)
-        st.write(response['answer'])
+        st.write(response)
 
     elif suggestion:
         query = suggestion
         docs = VectorStore.similarity_search(query=query, k=3)
         llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
         
-        human_template = "Context: {context}\nQuestion: {question}"
-        human_message_prompt = PromptTemplate.from_template(human_template)
-        
-        memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-        
-        chain = ConversationalRetrievalChain.from_llm(
+        message = """
+        Answer this question using the provided context only.
+
+        {question}
+
+        Context:
+        {context}
+        """
+
+        prompt = ChatPromptTemplate.from_messages([("human", message)])
+
+        chain = RetrievalQA.from_chain_type(
             llm=llm,
+            chain_type="stuff",
             retriever=VectorStore.as_retriever(),
-            memory=memory,
-            qa_prompt=human_message_prompt,
-            system_prompt=system_message_prompt,
+            chain_type_kwargs={"prompt": prompt},
         )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
             time.sleep(3)
-            response = chain({"question": query})
+            response = chain.run(query)
             print(cb)
-        st.write(response['answer'])
+        st.write(response)
+
 
 if __name__ == '__main__':
     main()
