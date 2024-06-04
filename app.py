@@ -161,7 +161,7 @@ def main():
         llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
         
         message = """
-        Answer this question using the provided context only.
+        Answer this question using the provided context only. Respond like a drunk pirate.
 
         {question}
 
