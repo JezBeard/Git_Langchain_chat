@@ -124,7 +124,7 @@ def main():
     """
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
-     if query:
+    if query:
         docs = VectorStore.similarity_search(query=query, k=3)
         llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
         
