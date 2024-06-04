@@ -10,6 +10,7 @@ from langchain.vectorstores import FAISS
 from langchain.chat_models import ChatOpenAI
 #from langchain.chains.question_answering import load_qa_chain
 from langchain.chains import ConversationalRetrievalChain
+from langchain.chains import RetrievalQA
 from langchain.memory import ConversationBufferMemory
 from langchain.callbacks import get_openai_callback
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
@@ -170,10 +171,11 @@ def main():
 
         prompt = ChatPromptTemplate.from_messages([("human", message)])
 
-        chain = RetrievalQA.from_llm(
+        chain = RetrievalQA.from_chain_type(
             llm=llm,
+            chain_type="stuff",
             retriever=VectorStore.as_retriever(),
-            combine_prompt=prompt,
+            chain_type_kwargs={"prompt": prompt},
         )
         
         with get_openai_callback() as cb, st.spinner('Working on response...'):
