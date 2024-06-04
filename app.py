@@ -11,6 +11,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains.question_answering import load_qa_chain
 from langchain.callbacks import get_openai_callback
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.prompts import PromptTemplate, SystemMessagePromptTemplate
 import os
 import openai
 import time
@@ -113,26 +114,46 @@ def main():
 
     suggestion = st.selectbox("Or select a suggestion: (ENSURE QUESTION FIELD ABOVE IS BLANK)", suggestions, index=0)
 
-    if query:
-        docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='model_name='gpt-4o', max_tokens=4000, temperature=0.2)
-        chain = load_qa_chain(llm=llm, chain_type="stuff")
-        with get_openai_callback() as cb, st.spinner('Working on response...'):
-            time.sleep(3)
-            response = chain.run(input_documents=docs, question=query)
-            print(cb)
-        st.write(response)
+    system_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
 
-    elif suggestion:
-        query = suggestion
-        docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-4o', max_tokens=4000, temperature=0.2)
-        chain = load_qa_chain(llm=llm, chain_type="stuff")
-        with get_openai_callback() as cb, st.spinner('Working on response...'):
-            time.sleep(3)
-            response = chain.run(input_documents=docs, question=query)
-            print(cb)
-        st.write(response)
+    {context}
+    
+    Question: {question}
+    """
+    system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
+
+    if query:
+    docs = VectorStore.similarity_search(query=query, k=3)
+    llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+    
+    system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
+    human_template = "Context: {context}\nQuestion: {question}"
+    human_message_prompt = PromptTemplate.from_template(human_template)
+    
+    chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=human_message_prompt, system_message_prompt=system_message_prompt)
+    
+    with get_openai_callback() as cb, st.spinner('Working on response...'):
+        time.sleep(3)
+        response = chain.run(input_documents=docs, question=query)
+        print(cb)
+    st.write(response)
+
+elif suggestion:
+    query = suggestion
+    docs = VectorStore.similarity_search(query=query, k=3)
+    llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-3.5-turbo', max_tokens=2000, temperature=0.5)
+    
+    system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
+    human_template = "Context: {context}\nQuestion: {question}"
+    human_message_prompt = PromptTemplate.from_template(human_template)
+    
+    chain = load_qa_chain(llm=llm, chain_type="stuff", prompt=human_message_prompt, system_message_prompt=system_message_prompt)
+    
+    with get_openai_callback() as cb, st.spinner('Working on response...'):
+        time.sleep(3)
+        response = chain.run(input_documents=docs, question=query)
+        print(cb)
+    st.write(response)
 
 if __name__ == '__main__':
     main()
