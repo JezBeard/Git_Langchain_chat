@@ -1,5 +1,6 @@
 pip
 langchain
+langchain-community
 PyPDF2
 python-docx
 python-dotenv
