@@ -53,13 +53,10 @@ def process_image(file):
     
     buffered = BytesIO()
     image.save(buffered, format="PNG")
-    img_str = base64.b64encode(buffered.getvalue()).decode()
-    return f"data:image/png;base64,{img_str}"
+    return buffered.getvalue()
 
 def display_image(image_data):
-    image_data = image_data.split(",")[1]  # Remove the "data:image/png;base64," part
-    image_bytes = base64.b64decode(image_data)
-    image = Image.open(BytesIO(image_bytes))
+    image = Image.open(BytesIO(image_data))
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
 def main():
@@ -151,31 +148,36 @@ def main():
         
         context = "\n".join([doc.page_content for doc in docs])
         
-        message = f"""
-        Human: Answer this question using the provided context and image (if available).
-
-        Question: {query}
-
-        Context:
-        {context}
-
-        """
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": f"Answer this question using the provided context and image (if available).\n\nQuestion: {query}\n\nContext:\n{context}"
+                    }
+                ]
+            }
+        ]
 
         if 'image' in st.session_state:
-            message += f"\nAn image is attached to this message. The image data is: {st.session_state['image']}"
+            messages[0]["content"].append({
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": base64.b64encode(st.session_state['image']).decode()
+                }
+            })
 
-        message += "\nAssistant: Here's the answer based on the provided context and image (if any):"
-
-        st.text_area("Debug: Message sent to API", message, height=300)
+        st.text_area("Debug: Message sent to API", str(messages), height=300)
 
         with st.spinner('Working on response...'):
             response = anthropic.messages.create(
                 model="claude-3-opus-20240229",
                 max_tokens=4000,
                 temperature=0.2,
-                messages=[
-                    {"role": "user", "content": message}
-                ]
+                messages=messages
             )
         
         st.write(response.content[0].text)
