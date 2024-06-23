@@ -7,18 +7,13 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.chains import RetrievalQA
-from langchain.callbacks import get_openai_callback
-from langchain_core.prompts import ChatPromptTemplate
-from langchain.prompts import PromptTemplate, SystemMessagePromptTemplate
-from langchain.llms import Anthropic
-from langchain.chat_models import ChatAnthropic
+from anthropic import Anthropic
 import os
 import time
 import pandas as pd
 
 # Set up Anthropic API key
-os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
+anthropic = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
 
 hide_streamlit_style = """
 <style>
@@ -119,24 +114,17 @@ def main():
 
     suggestion = st.selectbox("Or select a suggestion: (ENSURE QUESTION FIELD ABOVE IS BLANK)", suggestions, index=0)
 
-    system_template = """Use the following pieces of context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
-
-    {context}
-
-    Question: {question}
-    """
-    system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
-
     if query or suggestion:
         if suggestion:
             query = suggestion
         docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", max_tokens_to_sample=4000, temperature=0.2)
         
-        message = """
+        context = "\n".join([doc.page_content for doc in docs])
+        
+        message = f"""
         Human: Answer this question using the provided context only.
 
-        Question: {question}
+        Question: {query}
 
         Context:
         {context}
@@ -144,19 +132,17 @@ def main():
         Assistant: Here's the answer based on the provided context:
         """
 
-        prompt = ChatPromptTemplate.from_messages([("human", message)])
-
-        chain = RetrievalQA.from_chain_type(
-            llm=llm,
-            chain_type="stuff",
-            retriever=VectorStore.as_retriever(),
-            chain_type_kwargs={"prompt": prompt},
-        )
-        
         with st.spinner('Working on response...'):
-            time.sleep(3)
-            response = chain.run(query)
-        st.write(response)
+            response = anthropic.messages.create(
+                model="claude-3-sonnet-20240320",
+                max_tokens=4000,
+                temperature=0.2,
+                messages=[
+                    {"role": "user", "content": message}
+                ]
+            )
+        
+        st.write(response.content[0].text)
 
 if __name__ == '__main__':
     main()
