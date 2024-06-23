@@ -13,3 +13,4 @@ tiktoken
 beautifulsoup4
 pycryptodome
 dill
+pandas
