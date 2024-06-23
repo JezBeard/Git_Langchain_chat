@@ -54,13 +54,12 @@ def process_image(file):
     buffered = BytesIO()
     image.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
-    return f"data:image/png;base64,{img_str}"
+    return img_str
 
-def display_image(image_data):
-    image_data = image_data.split(",")[1]  # Remove the "data:image/png;base64," part
-    image_bytes = base64.b64decode(image_data)
-    image = Image.open(BytesIO(image_bytes))
-    st.image(image, caption="Uploaded Image", use_column_width=True)
+def display_base64_image(base64_string):
+    image_data = base64.b64decode(base64_string)
+    image = Image.open(BytesIO(image_data))
+    st.image(image, caption="Processed Image", use_column_width=True)
 
 def main():
     if 'text' not in st.session_state:
@@ -86,7 +85,8 @@ def main():
             elif file.type in ['image/png', 'image/jpeg']:
                 st.session_state['image'] = process_image(file)
                 st.session_state['text'] = "An image has been uploaded."
-                display_image(st.session_state['image'])
+                st.image(file, caption="Original Uploaded Image", use_column_width=True)
+                display_base64_image(st.session_state['image'])
             else:
                 st.error("Unsupported file type. Please upload a PDF, Word, CSV document, or image.")
                 return
@@ -162,7 +162,7 @@ def main():
         """
 
         if 'image' in st.session_state:
-            message += f"\nAn image is attached to this message. The image data is: {st.session_state['image']}"
+            message += f"\nHuman: Here is an image encoded in base64 format: {st.session_state['image']}\n\nPlease analyze this image and describe what you see."
 
         message += "\nAssistant: Here's the answer based on the provided context and image (if any):"
 
@@ -170,11 +170,21 @@ def main():
 
         with st.spinner('Working on response...'):
             response = anthropic.messages.create(
-                model="claude-3-5-sonnet-20240620",
+                model="claude-3-opus-20240229",
                 max_tokens=4000,
                 temperature=0.2,
                 messages=[
-                    {"role": "user", "content": message}
+                    {"role": "user", "content": message},
+                    {"role": "user", "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": "image/png",
+                                "data": st.session_state['image']
+                            }
+                        }
+                    ]} if 'image' in st.session_state else None
                 ]
             )
         
