@@ -7,21 +7,18 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import ConversationalRetrievalChain
 from langchain.chains import RetrievalQA
-from langchain.memory import ConversationBufferMemory
 from langchain.callbacks import get_openai_callback
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import PromptTemplate, SystemMessagePromptTemplate
-from langchain_core.runnables import RunnablePassthrough
+from langchain.llms import Anthropic
+from langchain.chat_models import ChatAnthropic
 import os
-import openai
 import time
 import pandas as pd
 
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# Set up Anthropic API key
+os.environ["ANTHROPIC_API_KEY"] = st.secrets["ANTHROPIC_API_KEY"]
 
 hide_streamlit_style = """
 <style>
@@ -134,15 +131,17 @@ def main():
         if suggestion:
             query = suggestion
         docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatOpenAI(streaming=True, callbacks=[StreamingStdOutCallbackHandler()], model_name='gpt-4o', max_tokens=4000, temperature=0.2)
+        llm = ChatAnthropic(model="claude-2", max_tokens_to_sample=4000, temperature=0.2)
         
         message = """
-        Answer this question using the provided context only.
+        Human: Answer this question using the provided context only.
 
-        {question}
+        Question: {question}
 
         Context:
         {context}
+
+        Assistant: Here's the answer based on the provided context:
         """
 
         prompt = ChatPromptTemplate.from_messages([("human", message)])
@@ -154,10 +153,9 @@ def main():
             chain_type_kwargs={"prompt": prompt},
         )
         
-        with get_openai_callback() as cb, st.spinner('Working on response...'):
+        with st.spinner('Working on response...'):
             time.sleep(3)
             response = chain.run(query)
-            print(cb)
         st.write(response)
 
 if __name__ == '__main__':
