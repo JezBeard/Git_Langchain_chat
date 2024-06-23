@@ -11,6 +11,9 @@ from anthropic import Anthropic
 import os
 import time
 import pandas as pd
+import base64
+from io import BytesIO
+from PIL import Image
 
 # Set up Anthropic API key
 anthropic = Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
@@ -40,17 +43,26 @@ def read_csv(file):
     df = pd.read_csv(file)
     return df.to_string()
 
+def process_image(file):
+    image = Image.open(file)
+    buffered = BytesIO()
+    image.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    return f"data:image/png;base64,{img_str}"
+
 def main():
     if 'text' not in st.session_state:
         st.session_state['text'] = ""
+    if 'image' in st.session_state:
+        del st.session_state['image']
 
     st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
-    st.header("Chat to a Document 💬👨🏻‍💻🤖")
+    st.header("Chat to a Document or Image 💬👨🏻‍💻🤖")
     
-    input_method = st.radio("Choose your input method:", ("Upload a document", "Paste text or web address"))
+    input_method = st.radio("Choose your input method:", ("Upload a document or image", "Paste text or web address"))
 
-    if input_method == "Upload a document":
-        file = st.file_uploader("Load your PDF, Word, or CSV document (just one for now)", type=['pdf', 'docx', 'csv'])
+    if input_method == "Upload a document or image":
+        file = st.file_uploader("Load your PDF, Word, CSV document, or Image", type=['pdf', 'docx', 'csv', 'png', 'jpg', 'jpeg'])
 
         if file is not None:
             if file.type == 'application/pdf':
@@ -59,8 +71,11 @@ def main():
                 st.session_state['text'] = read_docx(file)
             elif file.type == 'text/csv':
                 st.session_state['text'] = read_csv(file)
+            elif file.type in ['image/png', 'image/jpeg']:
+                st.session_state['image'] = process_image(file)
+                st.session_state['text'] = "An image has been uploaded."
             else:
-                st.error("Unsupported file type. Please upload a PDF, Word, or CSV document.")
+                st.error("Unsupported file type. Please upload a PDF, Word, CSV document, or image.")
                 return
         else:
             st.error("Please upload a file.")
@@ -84,8 +99,8 @@ def main():
                     text = text_or_url
                 st.session_state['text'] = text
 
-    if not st.session_state['text']:
-        st.error("Please provide some text either by uploading a document or pasting text.")
+    if not st.session_state['text'] and 'image' not in st.session_state:
+        st.error("Please provide some text or an image either by uploading a document/image or pasting text.")
         return
 
     text_splitter = RecursiveCharacterTextSplitter(
@@ -98,7 +113,7 @@ def main():
     embeddings = OpenAIEmbeddings()
     VectorStore = FAISS.from_texts(chunks, embedding=embeddings)
 
-    query = st.text_input("Ask question's about your document:")
+    query = st.text_input("Ask questions about your document or image:")
 
     suggestions = [
         "",
@@ -108,7 +123,10 @@ def main():
         "Create the headings and subheadings for Powerpoint slides",
         "Translate the first paragraph to French",
         "What is the first line entry in the spreadsheet?",
-        "How many rows are in the CSV file?"
+        "How many rows are in the CSV file?",
+        "Describe the image in detail",
+        "What objects can you see in the image?",
+        "What is the dominant color in the image?"
     ]
 
     suggestion = st.selectbox("Or select a suggestion: (ENSURE QUESTION FIELD ABOVE IS BLANK)", suggestions, index=0)
@@ -121,15 +139,19 @@ def main():
         context = "\n".join([doc.page_content for doc in docs])
         
         message = f"""
-        Human: Answer this question using the provided context only.
+        Human: Answer this question using the provided context and image (if any).
 
         Question: {query}
 
         Context:
         {context}
 
-        Assistant: Here's the answer based on the provided context:
         """
+
+        if 'image' in st.session_state:
+            message += f"\nImage: {st.session_state['image']}"
+
+        message += "\nAssistant: Here's the answer based on the provided context and image (if any):"
 
         with st.spinner('Working on response...'):
             response = anthropic.messages.create(
