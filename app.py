@@ -156,6 +156,7 @@ def main():
         with st.spinner('Working on response...'):
             response = anthropic.messages.create(
                 model="claude-3-5-sonnet-20240620",
+                max_tokens=4000,
                 temperature=0.2,
                 messages=[
                     {"role": "user", "content": message}
