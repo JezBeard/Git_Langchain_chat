@@ -11,7 +11,6 @@ from anthropic import Anthropic
 import os
 import time
 import pandas as pd
-import base64
 from io import BytesIO
 from PIL import Image
 
@@ -53,20 +52,17 @@ def process_image(file):
     
     buffered = BytesIO()
     image.save(buffered, format="PNG")
-    img_str = base64.b64encode(buffered.getvalue()).decode()
-    return f"data:image/png;base64,{img_str}"
+    return buffered.getvalue()
 
-def display_image(image_data):
-    image_data = image_data.split(",")[1]  # Remove the "data:image/png;base64," part
-    image_bytes = base64.b64decode(image_data)
+def display_image(image_bytes):
     image = Image.open(BytesIO(image_bytes))
     st.image(image, caption="Uploaded Image", use_column_width=True)
 
 def main():
     if 'text' not in st.session_state:
         st.session_state['text'] = ""
-    if 'image' in st.session_state:
-        del st.session_state['image']
+    if 'image_ref' in st.session_state:
+        del st.session_state['image_ref']
 
     st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     st.header("Chat to a Document or Image 💬👨🏻‍💻🤖")
@@ -84,9 +80,11 @@ def main():
             elif file.type == 'text/csv':
                 st.session_state['text'] = read_csv(file)
             elif file.type in ['image/png', 'image/jpeg']:
-                st.session_state['image'] = process_image(file)
+                image_bytes = process_image(file)
+                image_response = anthropic.images.create(image=image_bytes)
+                st.session_state['image_ref'] = image_response.image_id
                 st.session_state['text'] = "An image has been uploaded."
-                display_image(st.session_state['image'])
+                display_image(image_bytes)
             else:
                 st.error("Unsupported file type. Please upload a PDF, Word, CSV document, or image.")
                 return
@@ -112,7 +110,7 @@ def main():
                     text = text_or_url
                 st.session_state['text'] = text
 
-    if not st.session_state['text'] and 'image' not in st.session_state:
+    if not st.session_state['text'] and 'image_ref' not in st.session_state:
         st.error("Please provide some text or an image either by uploading a document/image or pasting text.")
         return
 
@@ -161,8 +159,8 @@ def main():
 
         """
 
-        if 'image' in st.session_state:
-            message += f"\nAn image is attached to this message. The image data is: {st.session_state['image']}"
+        if 'image_ref' in st.session_state:
+            message += f"\nAn image is attached to this message. The image reference is: {st.session_state['image_ref']}"
 
         message += "\nAssistant: Here's the answer based on the provided context and image (if any):"
 
@@ -175,7 +173,8 @@ def main():
                 temperature=0.2,
                 messages=[
                     {"role": "user", "content": message}
-                ]
+                ],
+                image_references=[st.session_state['image_ref']] if 'image_ref' in st.session_state else None
             )
         
         st.write(response.content[0].text)
