@@ -45,10 +45,22 @@ def read_csv(file):
 
 def process_image(file):
     image = Image.open(file)
+    
+    # Resize image if it's too large
+    max_size = 1024
+    if max(image.size) > max_size:
+        image.thumbnail((max_size, max_size))
+    
     buffered = BytesIO()
     image.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode()
     return f"data:image/png;base64,{img_str}"
+
+def display_image(image_data):
+    image_data = image_data.split(",")[1]  # Remove the "data:image/png;base64," part
+    image_bytes = base64.b64decode(image_data)
+    image = Image.open(BytesIO(image_bytes))
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
 def main():
     if 'text' not in st.session_state:
@@ -74,6 +86,7 @@ def main():
             elif file.type in ['image/png', 'image/jpeg']:
                 st.session_state['image'] = process_image(file)
                 st.session_state['text'] = "An image has been uploaded."
+                display_image(st.session_state['image'])
             else:
                 st.error("Unsupported file type. Please upload a PDF, Word, CSV document, or image.")
                 return
@@ -139,7 +152,7 @@ def main():
         context = "\n".join([doc.page_content for doc in docs])
         
         message = f"""
-        Human: Answer this question using the provided context and image (if any).
+        Human: Answer this question using the provided context and image (if available).
 
         Question: {query}
 
@@ -149,9 +162,11 @@ def main():
         """
 
         if 'image' in st.session_state:
-            message += f"\nImage: {st.session_state['image']}"
+            message += f"\nAn image is attached to this message. The image data is: {st.session_state['image']}"
 
         message += "\nAssistant: Here's the answer based on the provided context and image (if any):"
+
+        st.text_area("Debug: Message sent to API", message, height=300)
 
         with st.spinner('Working on response...'):
             response = anthropic.messages.create(
