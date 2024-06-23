@@ -15,4 +15,4 @@ pycryptodome
 dill
 pandas
 anthropic
-pillow
+Pillow
