@@ -131,7 +131,7 @@ def main():
         if suggestion:
             query = suggestion
         docs = VectorStore.similarity_search(query=query, k=3)
-        llm = ChatAnthropic(model="claude-2", max_tokens_to_sample=4000, temperature=0.2)
+        llm = ChatAnthropic(model="claude-3-5-sonnet-20240620", max_tokens_to_sample=4000, temperature=0.2)
         
         message = """
         Human: Answer this question using the provided context only.
