@@ -170,8 +170,6 @@ def main():
                 }
             })
 
-        st.text_area("Debug: Message sent to API", str(messages), height=300)
-
         with st.spinner('Working on response...'):
             response = anthropic.messages.create(
                 model="claude-3-opus-20240229",
