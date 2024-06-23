@@ -107,8 +107,7 @@ def main():
         "Provide a bullet point list of the key points mentioned in the document?",
         "Create the headings and subheadings for Powerpoint slides",
         "Translate the first paragraph to French",
-        "What are the column names in the CSV?",
-        "What is the average value in the [COLUMN_NAME] column?",
+        "What is the first line entry in the spreadsheet?",
         "How many rows are in the CSV file?"
     ]
 
