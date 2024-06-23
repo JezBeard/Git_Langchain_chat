@@ -16,3 +16,4 @@ dill
 pandas
 anthropic
 Pillow
+base64
